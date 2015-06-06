@@ -79,19 +79,46 @@ void function(window, document, undefined) {
   };
 
   // Pop notice tag after user liked or marked an item.
-  var updateNotice = function(event) {
+  var notice = function(msg) {
     clearTimeout(noticeDelay);
-    var e = event || window.event;
+    noticeContainer.innerHTML = 'Notice:' + '<strong>' + msg + '</strong>';
+    noticeContainer.className = 'on';
+    noticeDelay = setTimeout(function() {
+       noticeContainer.className = 'off';
+     }, 2000);
+  };
+
+  var clickEvent = function(){
+	var e = event || window.event;
     var target = e.target || e.srcElement;
     if(target.tagName == 'SPAN') {
-      var targetTitle = target.parentNode.tagLine;
-      noticeContainer.innerHTML = (target.className == 'like' ? 'Liked ' : 'Marked ') + '<strong>' + targetTitle + '</strong>';
-      noticeContainer.className = 'on';
-      noticeDelay = setTimeout(function() {
-        noticeContainer.className = 'off';
-      }, 2000);
-    }
-  };
+		var targetTitle = target.parentNode.tagLine;
+		var codeLink = target.parentNode.codeLink;
+	    var apkLink = target.parentNode.apkLink;
+		
+		if(target.className == 'like'){
+			//alert('like');
+			openWindow(codeLink);
+			return;
+		}
+		if(target.className == 'mark'){
+			//alert('mark');
+			openWindow(apkLink);
+			return;
+		}
+		notice('source not found!');
+	}else{
+		notice('clickEvent wrong!');
+	}
+  }
+
+  var openWindow = function(url){
+	  if (url == null || url == undefined || url == ''){
+		notice('No Source');
+	  }else{
+		window.open (url)
+	  }
+  } 
 
   // Calculate column count from current page width.
   var getColumnCount = function() {
@@ -117,6 +144,7 @@ void function(window, document, undefined) {
     var fragment = document.createDocumentFragment();
     var cells = [];
     var images;
+	//alert('num='+num);
     xhrRequest.open('GET', 'json.php?n=' + num, true);
     xhrRequest.onreadystatechange = function() {
       if(xhrRequest.readyState == 4 && xhrRequest.status == 200) {
@@ -144,16 +172,22 @@ void function(window, document, undefined) {
       // Avoid sending too many requests to get new cells.
       return;
     }
+	//initDataFromJson();
     var fragment = document.createDocumentFragment();
     var cells = [];
-    var images = [0, 286, 143, 270, 143, 190, 285, 152, 275, 285, 285, 128, 281, 242, 339, 236, 157, 286, 259, 267, 137, 253, 127, 190, 190, 225, 269, 264, 272, 126, 265, 287, 269, 125, 285, 190, 314, 141, 119, 274, 274, 285, 126, 279, 143, 266, 279, 600, 276, 285, 182, 143, 287, 126, 190, 285, 143, 241, 166, 240, 190];
+    //var images = [0, 286, 143, 270, 143, 190, 285, 152, 275, 285, 285, 128, 281, 242, 339, 236, 157, 286, 259, 267, 137, 253, 127, 190, 190, 225, 269, 264, 272, 126, 265, 287, 269, 125, 285, 190, 314, 141, 119, 274, 274, 285, 126, 279, 143, 266, 279, 600, 276, 285, 182, 143, 287, 126, 190, 285, 143, 241, 166, 240, 190];
     for(var j = 0; j < num; j++) {
       var key = Math.floor(Math.random() * 60) + 1;
+	  //var key = Math.floor(Math.random() * 42) + 1;
       var cell = document.createElement('div');
       cell.className = 'cell pending';
       cell.tagLine = 'demo picture ' + key;
+	  cell.codeLink = 'http://www.baidu.com?p=codeLink';
+	  cell.apkLink = 'http://www.baidu.com?p=apkLink';
       cells.push(cell);
-      front(cellTemplate, { 'title': 'demo picture ' + key, 'src': key, 'height': images[key], 'width': 190 }, cell);
+	  //alert(datas[key]);
+      //front(cellTemplate, { 'title': 'demo picture ' + key, 'src': key, 'height': images[key], 'width': 190 ,'link': 'http://www.baidu.com?magh='+key}, cell);
+	  front(cellTemplate, { 'title':datas[key][0], 'src': datas[key][1], 'height': datas[key][2], 'width': datas[key][3] ,'imagelink': datas[key][4],'magh': 'maghtest'}, cell);
       fragment.appendChild(cell);
     }
     // Faking network latency.
@@ -229,6 +263,7 @@ void function(window, document, undefined) {
       // Remove the if/else statement in your project, just call the appendCells function.
       if(isGithubDemo) {
         appendCellsDemo(columnCount);
+		//appendCells(columnCount);
       } else {
         appendCells(columnCount);
       }
@@ -256,7 +291,7 @@ void function(window, document, undefined) {
   // Initialize the layout.
   var init = function() {
     // Add other event listeners.
-    addEvent(cellsContainer, 'click', updateNotice);
+    addEvent(cellsContainer, 'click', clickEvent);
     addEvent(window, 'resize', delayedResize);
     addEvent(window, 'scroll', delayedScroll);
 
