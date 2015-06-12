@@ -19,9 +19,12 @@ void function(window, document, undefined) {
   var scrollDelay;          // scroll throttle timer
   var managing = false;     // flag for managing cells state
   var loading = false;      // flag for loading cells state
+  var isNoMore = false;		// flag for all data loaded
+  var currentLoadPage = 0;
 
   var noticeContainer = document.getElementById('notice');
   var cellsContainer = document.getElementById('cells');
+  var loaderContainer = document.getElementById('loader');
   var cellTemplate = document.getElementById('template').innerHTML;
 
   // Cross-browser compatible event handler.
@@ -175,21 +178,42 @@ void function(window, document, undefined) {
 	//initDataFromJson();
     var fragment = document.createDocumentFragment();
     var cells = [];
-    //var images = [0, 286, 143, 270, 143, 190, 285, 152, 275, 285, 285, 128, 281, 242, 339, 236, 157, 286, 259, 267, 137, 253, 127, 190, 190, 225, 269, 264, 272, 126, 265, 287, 269, 125, 285, 190, 314, 141, 119, 274, 274, 285, 126, 279, 143, 266, 279, 600, 276, 285, 182, 143, 287, 126, 190, 285, 143, 241, 166, 240, 190];
-    for(var j = 0; j < num; j++) {
-      var key = Math.floor(Math.random() * 60) + 1;
-	  //var key = Math.floor(Math.random() * 42) + 1;
-      var cell = document.createElement('div');
-      cell.className = 'cell pending';
-      cell.tagLine = 'demo picture ' + key;
-	  cell.codeLink = 'http://www.baidu.com?p=codeLink';
-	  cell.apkLink = 'http://www.baidu.com?p=apkLink';
-      cells.push(cell);
-	  //alert(datas[key]);
-      //front(cellTemplate, { 'title': 'demo picture ' + key, 'src': key, 'height': images[key], 'width': 190 ,'link': 'http://www.baidu.com?magh='+key}, cell);
-	  front(cellTemplate, { 'title':datas[key][0], 'src': datas[key][1], 'height': datas[key][2], 'width': datas[key][3] ,'imagelink': datas[key][4],'magh': 'maghtest'}, cell);
-      fragment.appendChild(cell);
-    }
+	
+	var dataSize = datas.length;
+	var beginIndex = currentLoadPage*num;
+	currentLoadPage = currentLoadPage+1;
+
+	if(beginIndex+num <= dataSize){
+		for(var k = 0; k < num; k++){
+			var dataIndex = beginIndex + k;
+			var cell = document.createElement('div');
+			cell.className = 'cell pending';
+			cell.tagLine = 'demo picture ' + dataIndex;
+			cell.codeLink = 'http://www.baidu.com?p=codeLink';
+			cell.apkLink = 'http://www.baidu.com?p=apkLink';
+			cells.push(cell);
+			
+			//alert('beginIndex='+beginIndex+' dataIndex='+dataIndex);
+			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
+			fragment.appendChild(cell);
+		}
+	}else if(beginIndex <= dataSize){
+		for(var k = 0; k < dataSize-beginIndex; k++){
+			var dataIndex = beginIndex + k;
+			var cell = document.createElement('div');
+			cell.className = 'cell pending';
+			cell.tagLine = 'demo picture ' + dataIndex;
+			cell.codeLink = 'http://www.baidu.com?p=codeLink';
+			cell.apkLink = 'http://www.baidu.com?p=apkLink';
+			cells.push(cell);
+			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
+			fragment.appendChild(cell);
+		}
+	}else{
+		//alert('OVER');	
+		loaderContainer.innerHTML = '==========All Loaded=========='
+	}
+	
     // Faking network latency.
     setTimeout(function() {
       loading = false;
@@ -261,6 +285,10 @@ void function(window, document, undefined) {
     // If there's space in viewport for a cell, request new cells.
     if(viewportBottom > getMinVal(columnHeights)) {
       // Remove the if/else statement in your project, just call the appendCells function.
+	  if(isNoMore){
+		//alert('over');
+		//return;
+		}
       if(isGithubDemo) {
         appendCellsDemo(columnCount);
 		//appendCells(columnCount);
