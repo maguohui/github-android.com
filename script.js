@@ -7,6 +7,7 @@ void function(window, document, undefined) {
 
   var MIN_COLUMN_COUNT = 3; // minimal column count
   var COLUMN_WIDTH = 220;   // cell width: 190, padding: 14 * 2, border: 1 * 2
+  var CELL_WITH = 190;
   var CELL_PADDING = 26;    // cell padding: 14 + 10, border: 1 * 2
   var GAP_HEIGHT = 15;      // vertical gap between cells
   var GAP_WIDTH = 15;       // horizontal gap between cells
@@ -192,9 +193,11 @@ void function(window, document, undefined) {
 			cell.codeLink = 'http://www.baidu.com?p=codeLink';
 			cell.apkLink = 'http://www.baidu.com?p=apkLink';
 			cells.push(cell);
+			var cellHeight =  (datas[dataIndex][2]*CELL_WITH)/datas[dataIndex][3]
 			
 			//alert('beginIndex='+beginIndex+' dataIndex='+dataIndex);
-			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
+			//front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4]}, cell);
+			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': cellHeight, 'width': CELL_WITH ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
 			fragment.appendChild(cell);
 		}
 	}else if(beginIndex <= dataSize){
@@ -206,12 +209,14 @@ void function(window, document, undefined) {
 			cell.codeLink = 'http://www.baidu.com?p=codeLink';
 			cell.apkLink = 'http://www.baidu.com?p=apkLink';
 			cells.push(cell);
-			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
+			var cellHeight =  (datas[dataIndex][2]*CELL_WITH)/datas[dataIndex][3]
+			//front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': datas[dataIndex][2], 'width': datas[dataIndex][3] ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
+			front(cellTemplate, { 'title':datas[dataIndex][0], 'imagesrc': datas[dataIndex][1], 'height': cellHeight, 'width': CELL_WITH ,'imagelink': datas[dataIndex][4],'magh': 'maghtest'}, cell);
 			fragment.appendChild(cell);
 		}
 	}else{
 		//alert('OVER');	
-		loaderContainer.innerHTML = '==========All Loaded=========='
+		loaderContainer.innerHTML = '============================== All Loaded =============================='
 	}
 	
     // Faking network latency.
